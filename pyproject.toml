@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "parse-riac-tg-bot"
+version = "0.1.0"
+description = ""
+authors = ["b_es <ivan2003064@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
