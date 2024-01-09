@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "parse-riac-tg-bot"
 version = "0.1.0"
-description = ""
+description = "Парсер-бот сайта РИАЦ"
 authors = ["b_es <ivan2003064@gmail.com>"]
 readme = "README.md"
 
