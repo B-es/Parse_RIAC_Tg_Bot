@@ -5,19 +5,16 @@ from parsing.News import News
 class Database():
     def __init__(self) -> None:
         self.openConnection()
-        cursor = self.connection.cursor()
         # Создаем таблицу News
-        cursor.execute('''
+        sql_table = '''
         CREATE TABLE IF NOT EXISTS News (
         id INTEGER PRIMARY KEY,
         caption TEXT NOT NULL,
         link TEXT NOT NULL,
         date TIMESTAMP NOT NULL,
         text TEXT NOT NULL)
-        ''')
-        cursor.close()
-        # Сохраняем изменения и закрываем соединение
-        self.connection.commit()
+        '''
+        self.executeSql(sql_table)
         self.closeConnection()
     
     def openConnection(self):
@@ -26,15 +23,16 @@ class Database():
     def closeConnection(self):
         self.connection.close()
         
-    def executeSql(self, sql):
+    def executeSql(self, sql, parameters = None):
         cursor = self.connection.cursor()
-        cursor.execute(sql)
+        cursor.execute(sql) if parameters is None else cursor.execute(sql, parameters)
         cursor.close()
         self.connection.commit()
         
     def add(self, news:News):
-        sql = f"INSERT INTO News(caption, link, date, text) VALUES('{news.caption}', '{news.link}', '{news.date}', '{news.text}')"
-        self.executeSql(sql)
+        sql = '''INSERT INTO News(caption, link, date, text) VALUES(?, ?, ?, ?)'''
+        toInsert = news.toInsert()
+        self.executeSql(sql, toInsert)
     
     def addOne(self, news:News):
         self.openConnection()

@@ -10,8 +10,10 @@ headers = {
 
 config = {
     "site": "https://riac34.ru",
+    "news_page": f'/news/?PAGEN_1=',
     "headers": headers,
-    "page_count": 834 #12 страниц на одной => 10008
+    "start_page": 834, #12 страниц на одной => 10008,
+    "last_page": 1,
 }
 
 months = {  
