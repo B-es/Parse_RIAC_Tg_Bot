@@ -3,9 +3,11 @@ import time
 import threading 
 import colorama
 from parsing.News import News
-from database import Database
+from Database import Database
 from parsing.parser_1 import parsing_site
 from config import config
+
+database: Database = Database()
 
 def timer():
     t = threading.current_thread()
@@ -17,7 +19,6 @@ def timer():
     print(colorama.Fore.RED + f"Прошло всего: {el} секунд | {el/60:.4f} минут")
 
 async def dataCollection():
-    database: Database = Database()
     
     if database.getNewsCount() == 834*12: return #10008
     
@@ -31,14 +32,21 @@ async def dataCollection():
     t.start()
     start_time = time.time()
     captions, links, dates, texts = await parsing_site(site, news_page, headers, start_page=start_page, last_page=last_page)
-    news_list: list[News] = [News(i+1,captions[i], links[i], dates[i], texts[i]) for i in range(len(captions))]
+    news_list: list[tuple] = [(captions[i], links[i], dates[i], texts[i]) for i in range(len(captions))]
     database.addList(news_list)
     seconds = time.time() - start_time
     minutes = seconds / 60
     print("--- %s секунд ---\n--- %s минут ---" % (seconds, minutes))
     t.do_run = False
+    
+def dataFromDatabase() -> list[News]:
+    news_list: list[tuple] = [News(*data) for data in database.getList()]
+    return news_list
+    
 
 if __name__ == "__main__":
     colorama.init(autoreset=False)
     asyncio.run(dataCollection())
+    news_list = dataFromDatabase()
+    print(news_list[-1])
     

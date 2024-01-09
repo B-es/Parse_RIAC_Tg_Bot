@@ -1,6 +1,4 @@
 import sqlite3
-from parsing.News import News
-
 
 class Database():
     def __init__(self) -> None:
@@ -29,17 +27,16 @@ class Database():
         cursor.close()
         self.connection.commit()
         
-    def add(self, news:News):
+    def add(self, news:tuple):
         sql = '''INSERT INTO News(caption, link, date, text) VALUES(?, ?, ?, ?)'''
-        toInsert = news.toInsert()
-        self.executeSql(sql, toInsert)
+        self.executeSql(sql, news)
     
-    def addOne(self, news:News):
+    def addOne(self, news:tuple):
         self.openConnection()
         self.add(news)
         self.closeConnection()
         
-    def addList(self, list_news:list[News]):
+    def addList(self, list_news:list[tuple]):
         self.openConnection()
         for news in list_news:
             self.add(news)
@@ -53,3 +50,12 @@ class Database():
         count = res.fetchall()[0][0]
         self.closeConnection()
         return count
+
+    def getList(self):
+        self.openConnection()
+        sql = "SELECT * FROM News"
+        cursor = self.connection.cursor()
+        res = cursor.execute(sql)
+        list = res.fetchall()
+        self.closeConnection()
+        return list
