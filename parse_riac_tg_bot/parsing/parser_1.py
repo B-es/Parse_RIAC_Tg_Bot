@@ -32,11 +32,10 @@ def parsing_texts(pages:list[str]) -> list[str]:
             texts.append(textData.get_text(strip=True))
     return texts
 
-async def parsing_site(site:str, news_page:str, headers:dict, start_page: int = 0, last_page: int = 0) -> tuple[list, list, list, list]:
+async def parsing_site(site:str, news_page:str, headers:dict, start_page:int = 834, last_page:int = 1) -> tuple[list, list, list, list]:
     
     urls = [] #Ссылки на страницы с 12 новостями
-    i = start_page
-    while i > last_page - 1:
+    for i in range(start_page, last_page-1, -1):
         url = site + news_page + str(i)
         urls.append(url)
         i -= 1

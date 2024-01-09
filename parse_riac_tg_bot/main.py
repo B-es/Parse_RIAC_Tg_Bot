@@ -6,6 +6,7 @@ from parsing.News import News
 from Database import Database
 from parsing.parser_1 import parsing_site
 from config import config
+from tg_bot.bot import start_bot
 
 database: Database = Database()
 
@@ -49,4 +50,5 @@ if __name__ == "__main__":
     asyncio.run(dataCollection())
     news_list = dataFromDatabase()
     print(news_list[-1])
+    start_bot()
     
