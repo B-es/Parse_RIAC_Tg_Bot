@@ -10,8 +10,8 @@ python = "^3.11"
 aiohttp = "^3.9.1"
 aiohttp-retry = "^2.8.3"
 bs4 = "^0.0.1"
-colorama = "^0.4.6"
 pytelegrambotapi = "^4.14.1"
+termcolor = "^2.4.0"
 
 
 [build-system]

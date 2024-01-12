@@ -1,11 +1,16 @@
 import asyncio
 import aiohttp
-import colorama
 from bs4 import BeautifulSoup
 from datetime import datetime
+from termcolor import cprint
 
 def parsing_captions_links_dates(page:str, site:str) -> tuple[list, list, list]:
-    """Парсит 12 заголовков, ссылок и дат с одной страницы"""
+    """
+    Парсит 12 заголовков, ссылок и дат с одной страницы
+    * page: str - код страницы
+    * site - ссылка на сайт
+    """
+    
     captions: list[str] = [] #Заголовки
     links: list[str] = [] #Ссылки
     dates: list[datetime] = [] #Даты
@@ -23,7 +28,11 @@ def parsing_captions_links_dates(page:str, site:str) -> tuple[list, list, list]:
     return (captions[::-1], links[::-1], dates[::-1])
 
 def parsing_texts(pages:list[str]) -> list[str]:
-    """Парсит 12 новостей с каждой страницы"""
+    """
+    Парсит 12 новостей с каждой страницы
+    * pages: list[str] - список кодов страниц
+    """
+    
     texts: list[str] = [] #Текст новостей
     for page in pages:
         soup = BeautifulSoup(page, "html.parser") #Супчик
@@ -33,6 +42,14 @@ def parsing_texts(pages:list[str]) -> list[str]:
     return texts
 
 async def parsing_site(site:str, news_page:str, headers:dict, start_page:int = 834, last_page:int = 1) -> tuple[list, list, list, list]:
+    """
+    Парсит все указанные страницы и возвращает их заголовки, ссылки, даты и тексты
+    * site: str - ссылка на сайт
+    * news_page: str - шаблон ссылки на страницу с 12 новостями
+    * headers: dict - заголовки для запроса к сайт
+    * start_page: int - номер первой страницы
+    * last_page: int - номер последней страницы
+    """
     
     urls = [] #Ссылки на страницы с 12 новостями
     for i in range(start_page, last_page-1, -1):
@@ -114,8 +131,8 @@ async def getSite(session:aiohttp.ClientSession, url:str, headers:str = ''):
         text = await response.text()
         ok = response.ok
         status = response.status
-        if ok: print(colorama.Fore.GREEN + f"{url} : {status} : {ok}")
-        else: print(colorama.Fore.BLUE + f"{url} : {status} : {ok}")
+        if ok: cprint(f"{url} : {status} : {ok}", color='green')
+        else: cprint(f"{url} : {status} : {ok}", color='blue')
         return (text)
 
 

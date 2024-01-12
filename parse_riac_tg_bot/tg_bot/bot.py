@@ -1,7 +1,7 @@
 from env import apikey
-import telebot
+from telebot import TeleBot
 
-bot = telebot.TeleBot(apikey)
+bot = TeleBot(apikey)
 
 #TODO: Добавить весь функционал в бота
 #!: 1) Вывод в форматированном тексте
@@ -21,8 +21,8 @@ def get_text_messages(message):
         bot.send_message(message.from_user.id, "Я живой")
     elif message.text != 'help':
         bot.send_message(message.from_user.id, "Я тебя не понимаю. Напиши /help.")
-    
-    
 
 def start_bot():
     bot.polling(none_stop=True, interval=0)
+    
+        
