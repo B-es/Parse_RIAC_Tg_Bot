@@ -28,7 +28,3 @@ class News:
     def __repr__(self):
         return f"Номер: {self.number}\n{'-'*100}\nЗаголовок: {self.caption}\nСсылка: {self.link}\nДата и время: {self.date}\nТекст: {self.text}\n{'-'*100}\n" +\
         f"VIP-персоны: {self.vips}\nДостопримечательности: {self.attractions}\n\nАннотация: {self.annotation}\n\nПерезапись: {self.rewrite}\n\nТональность: {self.tonality}"
-        
-news = News(1, "3", "123", datetime.now(), "123")
-
-print(news)
