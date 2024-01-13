@@ -1,8 +1,16 @@
 import asyncio
 import aiohttp
+import time
+from config import months, config
 from bs4 import BeautifulSoup
 from datetime import datetime
 from termcolor import cprint
+
+site = config.get("site") #Основная ссылка
+headers = config.get("headers") #Заголовки для отправки
+news_page = config.get("news_page") #Шаблон ссылки на страницу
+start_page = config.get("start_page") #Первая страница
+last_page = config.get("last_page") #Последняя страница
 
 def parsing_captions_links_dates(page:str, site:str) -> tuple[list, list, list]:
     """
@@ -41,7 +49,7 @@ def parsing_texts(pages:list[str]) -> list[str]:
             texts.append(textData.get_text(strip=True))
     return texts
 
-async def parsing_site(site:str, news_page:str, headers:dict, start_page:int = 834, last_page:int = 1) -> tuple[list, list, list, list]:
+async def parsing_site(site:str = site, news_page:str = news_page, headers:dict = headers, start_page:int = start_page, last_page:int = last_page) -> tuple[list, list, list, list]:
     """
     Парсит все указанные страницы и возвращает их заголовки, ссылки, даты и тексты
     * site: str - ссылка на сайт
@@ -55,14 +63,12 @@ async def parsing_site(site:str, news_page:str, headers:dict, start_page:int = 8
     for i in range(start_page, last_page-1, -1):
         url = site + news_page + str(i)
         urls.append(url)
-        i -= 1
         
     captions: list[str] = [] #Заголовки
     links: list[str] = [] #Ссылки
     dates: list[datetime] = [] #Даты
     texts: list[str] = [] #Текст новостей
     
-    import time
     start_time = time.time()
     
     timeout = aiohttp.ClientTimeout(2400)
@@ -72,7 +78,6 @@ async def parsing_site(site:str, news_page:str, headers:dict, start_page:int = 8
     for url in urls:
         firstStep.append(asyncio.create_task(getSite(session, url, headers)))
     pages = await asyncio.gather(*firstStep)
-    #await session.close()
     
     for page in pages:
         captions_n, links_n, dates_n = parsing_captions_links_dates(page, site)
@@ -85,8 +90,6 @@ async def parsing_site(site:str, news_page:str, headers:dict, start_page:int = 8
     
     start_time = time.time()
     
-    #session = aiohttp.ClientSession(trust_env=True, timeout=timeout)
-    
     secondStep = []
     for url in links:
         secondStep.append(asyncio.create_task(getSite(session, url, headers)))
@@ -94,7 +97,6 @@ async def parsing_site(site:str, news_page:str, headers:dict, start_page:int = 8
     await session.close()
     
     texts = parsing_texts(res)
-    print(len(texts))
     
     seconds = time.time() - start_time
     minutes = seconds / 60
@@ -103,8 +105,69 @@ async def parsing_site(site:str, news_page:str, headers:dict, start_page:int = 8
     
     return (captions, links, dates, texts)
 
+def parsing_date(page:str) -> list[datetime]:
+    """
+    Парсит 12 дат 
+    * page: str - код страницы
+    """
+    
+    dates: list[datetime] = [] #Даты
+    soup = BeautifulSoup(page, "html.parser") #Супчик
+    allNews = soup.find_all('div', class_="new-block") #Ищем все новости
+    #Анализ данных
+    for data in allNews:
+        dateData = data.find('span', class_='date')
+        if dateData is not None:
+            dates.append(convertData(dateData.text))
+    return dates[::-1]
 
-from config import months
+async def search_last_news_12page_number(date:datetime, site:str = site, news_page:str = news_page, headers:dict = headers) -> int:
+    """
+    Ищет номер новости с последней датой
+    * date: datetime - дата последней новости
+    * site: str - ссылка на сайт
+    * news_page: str - шаблон ссылки на страницу с 12 новостями
+    * headers: dict - заголовки для запроса к сайт
+    """
+    
+    number = 0
+    stop = False
+    
+    timeout = aiohttp.ClientTimeout(2400)
+    session = aiohttp.ClientSession(trust_env=True, timeout=timeout)
+    
+    start_page = 1
+    last_page = 10
+    while not stop and start_page < 30:
+        urls = [] #Ссылки на страницы с 12 новостями
+        for i in range(start_page, last_page+1):
+            url = site + news_page + str(i)
+            urls.append(url)
+
+        start_page += 10
+        last_page += 10
+        
+        start_time = time.time()
+        
+        tasks = []
+        for url in urls:
+            tasks.append(asyncio.create_task(getSite(session, url, headers)))
+        pages = await asyncio.gather(*tasks)
+
+        for page in pages:
+            dates_n = parsing_date(page)
+            number += 1
+            if date in dates_n:
+                stop = True
+                break
+            
+        seconds = time.time() - start_time
+        minutes = seconds / 60
+        print(f"--- Заход поиска {(start_page)//10} ---")
+        print("--- %s секунд ---\n--- %s минут ---" % (seconds, minutes))
+        
+    await session.close()
+    return number
 
 def convertData(date_raw:str) -> datetime:
     

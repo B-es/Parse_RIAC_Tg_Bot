@@ -4,10 +4,11 @@ import threading
 from termcolor import cprint
 from News import News
 from Database import Database
-from parsing.parser_1 import parsing_site
+from parsing.parser_1 import parsing_site, search_last_news_12page_number
 from config import config
 from tg_bot.bot import start_bot
 from tomita import tomita
+from datetime import datetime
 
 database: Database = Database()
 
@@ -26,23 +27,46 @@ async def dataCollection():
     """Собирает данные с 10008 страниц и сохраняет в базу данных"""
     
     if database.getNewsCount() == 834*12: return #10008
-    
-    site = config.get("site") #Основная ссылка
-    headers = config.get("headers") #Заголовки для отправки
-    news_page = config.get("news_page") #Шаблон ссылки на страницу
-    start_page = config.get("start_page") #Первая страница
-    last_page = config.get("last_page") #Последняя страница
 
     t = threading.Thread(target=timer) #Запуск таймера
     t.start()
     start_time = time.time() #Засекаем время выполнения
     
-    captions, links, dates, texts = await parsing_site(site, news_page, headers, start_page=start_page, last_page=last_page) #Все значения заданных полей
+    captions, links, dates, texts = await parsing_site() #Все значения заданных полей
     news_list: list[tuple] = [(captions[i], links[i], dates[i], texts[i]) for i in range(len(captions))] #Кортежи для сохранения в базу данных
     database.addList(news_list) #Сохранение в базу данных
     
     seconds = time.time() - start_time #Вывод результат
     minutes = seconds / 60
+    cprint("--- Сбор закончена ---", color="green")
+    cprint("--- %s секунд ---\n--- %s минут ---" % (seconds, minutes), color="green") 
+    t.do_run = False #Остановка таймера
+    
+async def dataUpdating():
+    """Добавляет новые данные и сохраняет в базу данных"""
+    
+    t = threading.Thread(target=timer) #Запуск таймера
+    t.start()
+    start_time = time.time() #Засекаем время выполнения
+    
+    lastDate_str = database.getLast()[3]
+    lastDate = datetime.strptime(lastDate_str, '%Y-%m-%d %H:%M:%S')
+    
+    number = await search_last_news_12page_number(lastDate)
+    captions, links, dates, texts = await parsing_site(start_page=number) #Все значения заданных полей
+    
+    index = dates.index(lastDate) + 1
+    captions = captions[index:]
+    links = links[index:]
+    dates = dates[index:]
+    texts = texts[index:]
+    
+    news_list: list[tuple] = [(captions[i], links[i], dates[i], texts[i]) for i in range(len(captions))] #Кортежи для сохранения в базу данных
+    database.addList(news_list) #Сохранение в базу данных
+    
+    seconds = time.time() - start_time #Вывод результат
+    minutes = seconds / 60
+    cprint("--- Актуализация закончена ---", color="green")
     cprint("--- %s секунд ---\n--- %s минут ---" % (seconds, minutes), color="green") 
     t.do_run = False #Остановка таймера
     
@@ -66,9 +90,12 @@ def newsAddition(news_list: list[News]):
     database.closeConnection
 
 if __name__ == "__main__":
-    # asyncio.run(dataCollection())
-    start_bot()
-
+    asyncio.run(dataUpdating())
+    # news_list = dataFromDatabase()[3:10]
+    # tomita.vips_attractions_collection(news_list)
+    # print([(news.vips, news.attractions) for news in news_list])
+    #start_bot()
+    
     
     
     

@@ -61,7 +61,7 @@ def readOutputXML(path: str = f'{mainPath}/tomita/output/output.xml') -> tuple[l
             if child.nodeName == "Person":
                 name = child.getElementsByTagName('Name')[0].getAttribute('val')
                 surname = child.getElementsByTagName('Surname')[0].getAttribute('val')
-                vips.append(f'{name} {surname}')
+                vips.append(f'{name.capitalize()} {surname.capitalize()}')
             else:
                 attractionName = child.getElementsByTagName('Name')[0].getAttribute('val')
                 attractions.append(attractionName)

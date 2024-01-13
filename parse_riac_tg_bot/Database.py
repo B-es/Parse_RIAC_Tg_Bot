@@ -4,7 +4,8 @@ from typing import Any
 class Database():
     """Класс для взаимодействия с базой данных"""
     
-    def __init__(self) -> None:
+    def __init__(self, dbName:str = 'news.db') -> None:
+        self.dbName = dbName
         self.openConnection()
         # Создаем таблицу News
         sql_table = '''
@@ -26,7 +27,7 @@ class Database():
     def openConnection(self):
         """Открыть соединение"""
         
-        self.connection = sqlite3.connect('news.db')
+        self.connection = sqlite3.connect(self.dbName)
     
     def closeConnection(self):
         """Закрыть соединение"""
@@ -70,7 +71,7 @@ class Database():
         Добавляет список в базу данных
         * list_item: list[tuple] - список данных
         """
-        
+
         self.openConnection()
         for item in list_item:
             self.add(item)
@@ -97,3 +98,13 @@ class Database():
         list = res.fetchall()
         self.closeConnection()
         return list
+    
+    def getLast(self) -> tuple:
+        """Получить последнюю запись из базы данных"""
+        self.openConnection()
+        sql = "SELECT * FROM News ORDER BY ID DESC LIMIT 1"
+        cursor = self.connection.cursor()
+        res = cursor.execute(sql)
+        note = res.fetchone()
+        self.closeConnection()
+        return note
