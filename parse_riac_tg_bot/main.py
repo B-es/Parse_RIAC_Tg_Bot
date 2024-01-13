@@ -16,12 +16,13 @@ def timer():
     """Управляем функция для счёта прошедшего времени паралелльно выполнению другой функции"""
     
     t = threading.current_thread()
-    el = 1
+    seconds = 1
     while getattr(t, "do_run", True):
-        cprint(f"Прошло: {el} секунд | {el/60:.4f} минут", color='red', attrs=["bold"])
+        mins, secs = divmod(seconds, 60)
+        cprint("Прошло: {:02d}:{:02d}".format(mins, secs), color='red', attrs=["bold"])
         time.sleep(1)
-        el += 1
-    cprint(f"Прошло всего: {el} секунд | {el/60:.4f} минут", color='red', attrs=['bold', 'underline'])
+        seconds += 1
+    cprint("Прошло всего: {:02d}:{:02d}".format(mins, secs), color='red', attrs=['bold', 'underline'])
 
 async def dataCollection():
     """Собирает данные с 10008 страниц и сохраняет в базу данных"""
@@ -60,13 +61,14 @@ async def dataUpdating():
     links = links[index:]
     dates = dates[index:]
     texts = texts[index:]
-    
+    time.sleep(10)
     news_list: list[tuple] = [(captions[i], links[i], dates[i], texts[i]) for i in range(len(captions))] #Кортежи для сохранения в базу данных
     database.addList(news_list) #Сохранение в базу данных
     
     seconds = time.time() - start_time #Вывод результат
     minutes = seconds / 60
     cprint("--- Актуализация закончена ---", color="green")
+    cprint(f"--- Добавлено: {len(captions)} новостей ---", color="green")
     cprint("--- %s секунд ---\n--- %s минут ---" % (seconds, minutes), color="green") 
     t.do_run = False #Остановка таймера
     
