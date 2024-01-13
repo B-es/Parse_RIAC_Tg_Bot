@@ -1,0 +1,26 @@
+encoding "utf8";
+
+TTextMinerConfig {
+  Dictionary = "path/mydic.gzt";
+
+  PrettyOutput = "pathout/PrettyOutput.html";
+
+  Input = {
+    File = "path/input.txt";
+  }
+
+  Articles = [
+    { Name = "People" }
+  ]
+
+  Facts = [
+    {Name = "NameAttraction"},
+    {Name = "Person"}
+  ]
+
+  Output = {
+    File = "pathout/output.xml";
+    Format = xml;
+    Encoding = "utf-8";
+  }
+}

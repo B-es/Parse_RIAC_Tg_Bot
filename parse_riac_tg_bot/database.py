@@ -1,11 +1,5 @@
 import sqlite3
-
-#TODO: Добавить поля
-# VIP-персоны
-# Достопримечательности
-# Аннотация
-# Переписанная новость
-# Оценка тональности новости
+from typing import Any
 
 class Database():
     """Класс для взаимодействия с базой данных"""
@@ -19,7 +13,12 @@ class Database():
         caption TEXT NOT NULL,
         link TEXT NOT NULL,
         date TIMESTAMP NOT NULL,
-        text TEXT NOT NULL)
+        text TEXT NOT NULL,
+        vips TEXT,
+        attractions TEXT,
+        annotation TEXT,
+        rewrite TEXT,
+        tonality TEXT)
         '''
         self.executeSql(sql_table)
         self.closeConnection()
@@ -34,7 +33,7 @@ class Database():
         
         self.connection.close()
         
-    def executeSql(self, sql: str, parameters: tuple = None):
+    def executeSql(self, sql: str, parameters: tuple = None) -> Any:
         """
         Исполнить sql-запрос
         * sql: str - sql-запрос с шаблоном (?,?..,?)
@@ -42,41 +41,42 @@ class Database():
         """
         
         cursor = self.connection.cursor()
-        cursor.execute(sql) if parameters is None else cursor.execute(sql, parameters)
+        res = cursor.execute(sql) if parameters is None else cursor.execute(sql, parameters)
         cursor.close()
         self.connection.commit()
+        return res
         
-    def add(self, news:tuple):
+    def add(self, item:tuple):
         """
         Добавить строку в базу данных
-        * news: tuple - новость
+        * item: tuple - строка
         """
         
         sql = '''INSERT INTO News(caption, link, date, text) VALUES(?, ?, ?, ?)'''
-        self.executeSql(sql, news)
+        self.executeSql(sql, item)
     
-    def addOne(self, news:tuple):
+    def addOne(self, item:tuple):
         """
         Добавляет одну строку в базу данных
-        * news: tuple - новость
+        * item: tuple - строка
         """
         
         self.openConnection()
-        self.add(news)
+        self.add(item)
         self.closeConnection()
         
-    def addList(self, list_news:list[tuple]):
+    def addList(self, list_item:list[tuple]):
         """
         Добавляет список в базу данных
-        * list_news: list[tuple] - новости
+        * list_item: list[tuple] - список данных
         """
         
         self.openConnection()
-        for news in list_news:
-            self.add(news)
+        for item in list_item:
+            self.add(item)
         self.closeConnection()
         
-    def getNewsCount(self):
+    def getNewsCount(self) -> int:
         """Получить количество записей в базе данных"""
         
         self.openConnection()
@@ -87,7 +87,7 @@ class Database():
         self.closeConnection()
         return count
 
-    def getList(self):
+    def getList(self) -> list[tuple]:
         """Получить все записи из базы данных"""
         
         self.openConnection()

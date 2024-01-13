@@ -1,0 +1,26 @@
+encoding "utf8";
+
+TTextMinerConfig {
+  Dictionary = "parse_riac_tg_bot/tomita/dependencies/mydic.gzt";
+
+  PrettyOutput = "parse_riac_tg_bot/tomita/output/PrettyOutput.html";
+
+  Input = {
+    File = "parse_riac_tg_bot/tomita/dependencies/input.txt";
+  }
+
+  Articles = [
+    { Name = "People" }
+  ]
+
+  Facts = [
+    {Name = "NameAttraction"},
+    {Name = "Person"}
+  ]
+
+  Output = {
+    File = "parse_riac_tg_bot/tomita/output/output.xml";
+    Format = xml;
+    Encoding = "utf-8";
+  }
+}

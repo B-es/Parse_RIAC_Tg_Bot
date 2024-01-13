@@ -2,7 +2,7 @@ import asyncio
 import time
 import threading 
 from termcolor import cprint
-from parsing.News import News
+from News import News
 from Database import Database
 from parsing.parser_1 import parsing_site
 from config import config
@@ -52,9 +52,25 @@ def dataFromDatabase() -> list[News]:
     news_list: list[tuple] = [News(*data) for data in database.getList()]
     return news_list
     
+def newsAddition(news_list: list[News]):
+    sql = '''UPDATE News SET vips = ?, attractions = ? WHERE id = ?'''
+    database.openConnection()
+    for news in news_list:
+        vips = []
+        attractions = []
+        if news.vips != None: vips = news.vips
+        if news.attractions != None: attractions = news.attractions
+        print((','.join(vips), ','.join(attractions)))
+        print(news.number)
+        database.executeSql(sql, (','.join(vips), ','.join(attractions), news.number))
+    database.closeConnection
 
 if __name__ == "__main__":
     # asyncio.run(dataCollection())
-    # news_list = dataFromDatabase()
-    # print(news_list[-1])
     start_bot()
+
+    
+    
+    
+    
+    

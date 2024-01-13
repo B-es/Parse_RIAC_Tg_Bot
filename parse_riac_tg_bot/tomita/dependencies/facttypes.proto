@@ -1,0 +1,13 @@
+import "base.proto";
+import "facttypes_base.proto";
+
+message Person: NFactType.TFact
+{
+    required string Name = 1 [default = "Имя VIP-Персоны не найдено"];
+    required string Surname = 2 [default = "Фамилия VIP-Персоны не найдено"];
+}
+
+message NameAttraction: NFactType.TFact
+{
+    optional string Name = 1 [default = "Test"];
+}
