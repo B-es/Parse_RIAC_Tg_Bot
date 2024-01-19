@@ -16,23 +16,21 @@ class News:
     attractions: Optional[list[str]] = None #Нужно конвертировать в строку для хранения в базе данных
     annotation: Optional[str] = None 
     rewrite: Optional[str] = None 
-    tonality: Optional[list[str]] = None #Нужно конвертировать в строку для хранения в базе данных
+    tonality: Optional[str] = None #Нужно конвертировать в строку для хранения в базе данных
     
     def toInsert(self) -> tuple:
         """Функция возвращает кортеж данных для добавления"""
         vips = []
         attractions = []
-        tonality = []
         if self.vips != None: vips = self.vips
         if self.attractions != None: attractions = self.attractions
-        if self.tonality != None: tonality = self.tonality
         
         return (self.caption, self.link, self.date, self.text, ','.join(vips), ','.join(attractions),\
-                self.annotation, self.rewrite, ','.join(tonality))
+                self.annotation, self.rewrite, self.tonality)
         
     def toUpdate(self) -> tuple:
         """Функция возвращает кортеж данных для обновления"""
-        return (self.number, *self.toInsert())
+        return (*self.toInsert(), self.number)
     
     def setData(self, data:tuple):
         """Установить данные классу"""

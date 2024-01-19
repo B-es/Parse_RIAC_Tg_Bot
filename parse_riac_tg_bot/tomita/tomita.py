@@ -83,3 +83,4 @@ def vips_attractions_collection(news_list: list[News]):
         vips, attractions = readOutputXML()
         news.vips = vips
         news.attractions = attractions
+        print(f"{news.number} : ok")

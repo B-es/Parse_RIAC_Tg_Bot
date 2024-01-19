@@ -46,6 +46,36 @@ class Database():
         cursor.close()
         self.connection.commit()
         return res
+    
+    def update(self, item: tuple):
+        """
+        Обновить строку в базу данных
+        * item: tuple - строка
+        """
+        
+        sql = '''UPDATE News SET caption = ?, link = ?, date = ?, text = ?, vips = ?, attractions = ?, annotation = ?, rewrite = ?, tonality = ? WHERE id = ?'''
+        self.executeSql(sql, item)
+        
+    def updateOne(self, item:tuple):
+        """
+        Обновляем одну строку в базу данных
+        * item: tuple - строка
+        """
+        
+        self.openConnection()
+        self.update(item)
+        self.closeConnection()
+        
+    def updateList(self, list_item:list[tuple]):
+        """
+        Обновляем список в базу данных
+        * list_item: list[tuple] - список данных
+        """
+
+        self.openConnection()
+        for item in list_item:
+            self.update(item)
+        self.closeConnection()
         
     def add(self, item:tuple):
         """
@@ -108,3 +138,4 @@ class Database():
         note = res.fetchone()
         self.closeConnection()
         return note
+    

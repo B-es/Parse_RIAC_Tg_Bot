@@ -35,3 +35,6 @@ months = {
         }
 
 mainPath = 'parse_riac_tg_bot' #Главный путь проекта
+
+import os
+mainGlobalPath = os.path.abspath("parse_riac_tg_bot") #Главный глобальный путь проекта
