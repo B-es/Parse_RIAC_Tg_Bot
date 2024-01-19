@@ -76,7 +76,7 @@ async def dataUpdating():
 def dataFromDatabase() -> list[News]:
     """Выводит все значения из базы данных в виде списка из объектов дата-класса"""
     
-    news_list: list[tuple] = [News(*data) for data in database.getList()]
+    news_list: list[tuple] = [News(data[0], data[1], data[2], data[3], data[4], data[5].split(' '), data[6].split(' '), data[7], data[8], data[9]) for data in database.getList()]
     return news_list
 
 
@@ -92,30 +92,30 @@ async def newsAddition(news_list: list[News]):
     
     keyboard.add_hotkey('f4', stop_timer)
     
-    # tomita.vips_attractions_collection(news_list)
-    # database.updateList([news.toUpdate() for news in news_list])
+    tomita.vips_attractions_collection(news_list)
+    database.updateList([news.toUpdate() for news in news_list])
     
-    news_list_with_vips_or_attractions = [news for news in news_list if news.attractions or news.vips]
-    news_without_ton = [news for news in news_list_with_vips_or_attractions if news.annotation == '' or news.annotation == None]
-    texts = [news.text for news in news_without_ton]
+    # news_list_with_vips_or_attractions = [news for news in news_list if news.attractions or news.vips]
+    # news_without_ton = [news for news in news_list_with_vips_or_attractions if news.annotation == '' or news.annotation == None]
+    # texts = [news.text for news in news_without_ton]
 
-    def split(a, n):
-        k, m = divmod(len(a), n)
-        return [a[i*k+min(i, m):(i+1)*k+min(i+1, m)] for i in range(n)]
+    # def split(a, n):
+    #     k, m = divmod(len(a), n)
+    #     return [a[i*k+min(i, m):(i+1)*k+min(i+1, m)] for i in range(n)]
 
-    sotki = split(texts, 20)
-    sotki_news = split(news_list_with_vips_or_attractions, 20)
+    # sotki = split(texts, 20)
+    # sotki_news = split(news_list_with_vips_or_attractions, 20)
     
-    for part, part_news, i in zip(sotki, sotki_news, range(1, 21)):
-        summarizers, rewriters, tonals = await processingNews(part)
+    # for part, part_news, i in zip(sotki, sotki_news, range(1, 21)):
+    #     summarizers, rewriters, tonals = await processingNews(part)
         
-        for summarizer, rewriter, tonal, news in zip(summarizers, rewriters, tonals, part_news):
-            news.annotation = summarizer
-            news.rewrite = rewriter
-            news.tonality = tonal
+    #     for summarizer, rewriter, tonal, news in zip(summarizers, rewriters, tonals, part_news):
+    #         news.annotation = summarizer
+    #         news.rewrite = rewriter
+    #         news.tonality = tonal
         
-        database.updateList([news.toUpdate() for news in part_news])
-        cprint(f"{i} сотка загружена", color='red')
+    #     database.updateList([news.toUpdate() for news in part_news])
+    #     cprint(f"{i} сотка загружена", color='red')
     t.do_run = False #Остановка таймера
     
 def getSynonyms(word: str, count:int = 1) -> list[str]:
@@ -131,8 +131,4 @@ def getSynonyms(word: str, count:int = 1) -> list[str]:
     return [v for v, freq in res]
     
 
-    
-    
-    
-    
     
