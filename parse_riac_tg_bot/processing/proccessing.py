@@ -1,24 +1,31 @@
 from nltk.stem.wordnet import WordNetLemmatizer
-from nltk.corpus import twitter_samples, stopwords
+from nltk.corpus import stopwords
 from nltk.tag import pos_tag
 from nltk.tokenize import word_tokenize
-from nltk import FreqDist, classify, NaiveBayesClassifier
+from nltk import NaiveBayesClassifier
 from env import gigachat_creds
 
 import re, string, random
 import asyncio
 from gigachat import GigaChat, GigaChatAsyncClient
-import codecs
 
 async def getSummarizerText(session: GigaChatAsyncClient, newsText: str) -> str:
-    response = await session.achat(f"Используя суммаризатор, максимально сократи данный текст: {newsText}")
+    try:
+        response = await session.achat(f"Используя суммаризатор, максимально сократи данный текст: {newsText}")
+    except Exception as e:
+        print(f"Ошибка суммиризатора: {e}")
+        return ''
     return response.choices[0].message.content
 
 async def getRewriterText(session: GigaChatAsyncClient, newsText: str) -> str:
-    response = await session.achat(f"Используя рерайтер, преобразуй данный текст: {newsText}")
+    try:
+        response = await session.achat(f"Используя рерайтер, преобразуй данный текст: {newsText}")
+    except Exception as e:
+        print(f"Ошибка рерайтера: {e}")
+        return ''
     return response.choices[0].message.content
 
-async def getDataSummarizerAndRewriter(texts: list[str]) -> tuple[str, str]:
+async def getData(texts: list[str]) -> tuple[str, str]:
     with GigaChat(
             verify_ssl_certs=False,
             credentials=gigachat_creds,
@@ -35,7 +42,7 @@ async def getDataSummarizerAndRewriter(texts: list[str]) -> tuple[str, str]:
         resultsRewriter = await asyncio.gather(*tasksRewriter)
         return (resultsSummorizer, resultsRewriter)
     
-def remove_noise(tweet_tokens, stop_words = ()):
+def removeNoise(tweet_tokens, stop_words = ()):
 
     cleaned_tokens = []
 
@@ -58,11 +65,6 @@ def remove_noise(tweet_tokens, stop_words = ()):
             cleaned_tokens.append(token.lower())
     return cleaned_tokens
 
-def get_all_words(cleaned_tokens_list):
-    for tokens in cleaned_tokens_list:
-        for token in tokens:
-            yield token
-
 def get_tweets_for_model(cleaned_tokens_list):
     for tweet_tokens in cleaned_tokens_list:
         yield dict([token, True] for token in tweet_tokens)
@@ -83,7 +85,7 @@ def tokens(path:str):
 
     for text in texts:
         tokens = word_tokenize(text)
-        cleaned_tokens_list.append(remove_noise(tokens, stop_words))
+        cleaned_tokens_list.append(removeNoise(tokens, stop_words))
     
     return cleaned_tokens_list
 
@@ -116,12 +118,12 @@ def getTonality(texts: list[str]) -> list[str]:
     classifier = getClassifier()
     tonals = []
     for text in texts:
-        custom_tokens = remove_noise(word_tokenize(text))
+        custom_tokens = removeNoise(word_tokenize(text))
         tonals.append(classifier.classify(dict([token, True] for token in custom_tokens)))
     return tonals
 
 
-async def processing_news(texts: list[str]) -> tuple[list[str], list[str], list[str]]:
+async def processingNews(texts: list[str]) -> tuple[list[str], list[str], list[str]]:
     tonals = getTonality(texts)
-    summarizers, rewriters = await getDataSummarizerAndRewriter(texts)
+    summarizers, rewriters = await getData(texts)
     return summarizers, rewriters, tonals

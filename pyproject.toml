@@ -19,6 +19,7 @@ pyspark = "^3.5.0"
 numpy = "^1.26.3"
 scipy = "^1.11.4"
 apscheduler = "^3.10.4"
+keyboard = "^0.13.5"
 
 
 [build-system]

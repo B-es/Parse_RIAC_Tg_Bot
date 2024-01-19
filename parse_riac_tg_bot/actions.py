@@ -4,7 +4,7 @@ from termcolor import cprint
 from News import News
 from Database import Database
 from parsing.parser_1 import parsing_site, search_last_news_12page_number
-from processing.proccessing import processing_news
+from processing.proccessing import processingNews
 from tomita import tomita
 from datetime import datetime
 from spark.searchSynonyms import getContextSynonyms
@@ -20,10 +20,10 @@ def timer():
     seconds = 1
     while getattr(t, "do_run", True):
         mins, secs = divmod(seconds, 60)
-        cprint("Прошло: {:02d}:{:02d}".format(mins, secs), color='red', attrs=["bold"])
+        cprint("Прошло: {:02d}:{:02d}".format(mins, secs), color='red', attrs=["bold"], end='\r')
         sleep(1)
         seconds += 1
-    cprint("Прошло всего: {:02d}:{:02d}".format(mins, secs), color='red', attrs=['bold', 'underline'])
+    cprint("Прошло всего: {:02d}:{:02d}".format(mins, secs), color='red', attrs=['bold', 'underline'], end='\r')
 
 async def dataCollection():
     """Собирает данные с 10008 страниц и сохраняет в базу данных"""
@@ -78,27 +78,44 @@ def dataFromDatabase() -> list[News]:
     
     news_list: list[tuple] = [News(*data) for data in database.getList()]
     return news_list
-    
+
+
+import keyboard
+
 async def newsAddition(news_list: list[News]):
     
     t = Thread(target=timer) #Запуск таймера
     t.start()
     
-    tomita.vips_attractions_collection(news_list)
-    database.updateList([news.toUpdate() for news in news_list])
+    def stop_timer():
+        t.do_run = False
     
+    keyboard.add_hotkey('f4', stop_timer)
     
-    # news_list_with_vips_or_attractions = [news for news in news_list if news.attractions != None or news.vips != None]
-    # texts = [news.text for news in news_list_with_vips_or_attractions]
-    
-    # summarizers, rewriters, tonals = await processing_news(texts)
-    
-    # for summarizer, rewriter, tonal, news in zip(summarizers, rewriters, tonals, news_list_with_vips_or_attractions):
-    #     news.annotation = summarizer
-    #     news.rewrite = rewriter
-    #     news.tonality = tonal
-    
+    # tomita.vips_attractions_collection(news_list)
     # database.updateList([news.toUpdate() for news in news_list])
+    
+    news_list_with_vips_or_attractions = [news for news in news_list if news.attractions or news.vips]
+    news_without_ton = [news for news in news_list_with_vips_or_attractions if news.annotation == '' or news.annotation == None]
+    texts = [news.text for news in news_without_ton]
+
+    def split(a, n):
+        k, m = divmod(len(a), n)
+        return [a[i*k+min(i, m):(i+1)*k+min(i+1, m)] for i in range(n)]
+
+    sotki = split(texts, 20)
+    sotki_news = split(news_list_with_vips_or_attractions, 20)
+    
+    for part, part_news, i in zip(sotki, sotki_news, range(1, 21)):
+        summarizers, rewriters, tonals = await processingNews(part)
+        
+        for summarizer, rewriter, tonal, news in zip(summarizers, rewriters, tonals, part_news):
+            news.annotation = summarizer
+            news.rewrite = rewriter
+            news.tonality = tonal
+        
+        database.updateList([news.toUpdate() for news in part_news])
+        cprint(f"{i} сотка загружена", color='red')
     t.do_run = False #Остановка таймера
     
 def getSynonyms(word: str, count:int = 1) -> list[str]:
