@@ -7,7 +7,7 @@ seconds = 0
 scheduler = AsyncIOScheduler()
 job = scheduler.add_job(dataUpdating, 'interval', seconds=100)
 bot = AsyncTeleBot(apikey)
-#news_list = dataFromDatabase()
+news_list = dataFromDatabase()
 
 chat_id = ''
 
