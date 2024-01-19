@@ -61,7 +61,7 @@
 Команда
 </h2>
 <h3 align="center">
-> Васильев Иван Сергеевич <span style="color:red">(Задание №1)</span>
+> Васильев Иван Сергеевич ИВТ-363 <span style="color:red">(Задание №1)</span>
 </h3>
 <p align="center">
     <a href="https://github.com/B-es"><img src="https://avatars.githubusercontent.com/u/104147126?v=4" alt="tankistqazwsx" width="50" height="50"> </a>
@@ -69,7 +69,7 @@
 
 
 <h3 align="center">
-> Ваганов Владислав Игоревич <span style="color:red">(Задание №2)</span>
+> Ваганов Владислав Игоревич ИВТ-363 <span style="color:red">(Задание №2)</span>
 </h3>
 <p align="center">
     <a href="https://github.com/VladislavGrom1"><img src="https://avatars.githubusercontent.com/u/108086934?v=4" alt="Kolyamba-mamba" width="50" height="50"> </a>
@@ -77,7 +77,7 @@
 
 
 <h3 align="center">
-> Мухин Дмитрий Андреевич <span style="color:red">(Задание №3)</span>
+> Мухин Дмитрий Андреевич ИВТ-363 <span style="color:red">(Задание №3)</span>
 </h3>
 <p align="center">
     <a href="https://github.com/oxordth"><img src="https://avatars.githubusercontent.com/u/101668918?v=4" alt="Kolyamba-mamba" width="50" height="50"> </a>
